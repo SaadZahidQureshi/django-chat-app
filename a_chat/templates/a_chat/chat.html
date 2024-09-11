@@ -11,7 +11,7 @@
         <div id='chat_container' class="overflow-y-auto grow">
             <ul id='chat_messages' class="flex flex-col justify-end gap-2 p-4">
 
-                {% for message in messages %}
+                {% for message in messages reversed %}
                     {% include "a_chat\chat_message.html" %}
                 {% endfor %}
             </ul>
