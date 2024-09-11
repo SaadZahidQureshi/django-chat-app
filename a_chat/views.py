@@ -9,7 +9,7 @@ def chat_view(request):
     public_chat = get_object_or_404(ChatGroup, id=1)
     messages = GroupMessage.objects.all()[:30]
     context ={
-        "messages": messages,
+        "chat_messages": messages,
     }
     
     form = ChatMessageCreateForm()
