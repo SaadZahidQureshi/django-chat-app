@@ -1,18 +1,28 @@
+from django.http import Http404
 from django.shortcuts import get_object_or_404, render, redirect
+from django.contrib.auth.decorators import login_required
 from .models import *
 from .forms import *
 
 # Create your views here.
 
 
-def chat_view(request):
-    public_chat = get_object_or_404(ChatGroup, id=1)
-    messages = GroupMessage.objects.all()[:30]
+def chat_view(request, chatroom_name= 'public-chat'):
+    chat_group = get_object_or_404(ChatGroup, group_name=chatroom_name)
+    messages = chat_group.chat_message.all()[:30]
     context ={
         "chat_messages": messages,
     }
     
     form = ChatMessageCreateForm()
+    
+    other_user = None
+    if chat_group.is_private:
+        if request.user not in chat_group.members.all():
+            raise Http404()
+        for member in chat_group.members.all():
+            if member != request.user:
+                other_user =  member
     
     if request.htmx:
         form = ChatMessageCreateForm(request.POST)
@@ -20,11 +30,37 @@ def chat_view(request):
         if form.is_valid():
             message = form.save(commit=False)
             message.author = request.user
-            message.group = public_chat
+            message.group = chat_group
             message.save()
             context['message'] = message
             context['user'] = request.user
             return render(request, 'a_chat/partials/chat_message_p.html', context)
                 
     context["form"] = form
+    context["other_user"] = other_user
+    context["chatroom_name"] = chatroom_name
     return render(request, 'a_chat/chat.html', context)
+
+@login_required
+def get_or_create_chatroom(request, username):
+    if request.user.username == username:
+        return redirect("home")
+    
+    other_user = User.objects.get(username=username)
+    my_chatrooms = request.user.chat_groups.filter(is_private=True)
+    
+    if my_chatrooms.exists():
+        for chatroom in my_chatrooms:
+            if other_user in chatroom.members.all():
+                chatroom = chatroom 
+                break
+            else:
+                chatroom = ChatGroup.objects.create(is_private = True)
+                chatroom.members.add(other_user, request.user)
+    else:
+        chatroom = ChatGroup.objects.create(is_private = True)
+        chatroom.members.add(other_user, request.user)
+        
+    return redirect("chatroom", chatroom.group_name)
+    
+    

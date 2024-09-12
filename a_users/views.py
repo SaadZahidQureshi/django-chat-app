@@ -9,6 +9,7 @@ from django.contrib import messages
 from .forms import *
 
 def profile_view(request, username=None):
+    print(username)
     if username:
         profile = get_object_or_404(User, username=username).profile
     else:
