@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 import shortuuid
+import os
 
 # Create your models here.
 
@@ -20,11 +21,26 @@ class ChatGroup(models.Model):
 class GroupMessage(models.Model):
     group = models.ForeignKey(ChatGroup, related_name="chat_message", on_delete=models.CASCADE)
     author = models.ForeignKey(User, on_delete=models.CASCADE)
-    body = models.CharField(max_length=300)
+    body = models.CharField(max_length=300, null=True, blank=True)
+    file = models.FileField(upload_to='files/', blank=True, null=True)
     created_at = models.DateField(auto_now_add=True)
     
+    @property
+    def filename(self):
+        return os.path.basename(self.file.name)
+    
+    @property
+    def is_image(self):
+        if self.filename.lower().endswith(('.jpg', '.jpeg', '.png', '.gif', '.svg', '.webp')):
+            return True
+        else:
+            False
+    
     def __str__(self):
-        return f'{self.author.username} :  {self.body}'
+        if self.body:
+            return f'{self.author.username} :  {self.body}'
+        else:
+            return f'{self.author.username} :  {self.filename}'
     
     class Meta:
         ordering = ['-id']
