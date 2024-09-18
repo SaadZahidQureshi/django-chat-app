@@ -115,11 +115,14 @@
 <body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}' class="{% block class %}{% endblock %}">
 	
     {% include 'includes/messages.html' %}
-
     {% include 'includes/header.html' %}
 
     {% block layout %}
     {% endblock %}
+
+    {% if user.is_authenticated %}
+    <footer hx-ext="ws" ws-connect='/ws/online-status/'></footer>
+    {% endif %}
 
     {% block javascript %}{% endblock %}
 

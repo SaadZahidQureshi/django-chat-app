@@ -91,7 +91,6 @@ def create_groupchat(request):
     
     return render(request, "a_chat/create_groupchat.html", context)
 
-
 def chatroom_edit_view(request, chatroom_name):
     context = {}
     chatroom = ChatGroup.objects.get(group_name = chatroom_name)
@@ -118,7 +117,6 @@ def chatroom_edit_view(request, chatroom_name):
     context['chat_group'] = chatroom
         
     return render(request, 'a_chat/chatroom_edit.html', context)
-
 
 def chatroom_delete_view(request, chatroom_name):
     context = {}
