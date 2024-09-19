@@ -63,35 +63,26 @@
                     {% csrf_token %}
                     {{form}}
                 </form>
-                <form action="" id="chat_file_form" class="flex items-center w-full" enctype="multipart/form-data" 
-                hx-post="/chat/fileupload/public-chat" hx-target="#chat_messages" hx-swap="beforeend" 
-                _="on htmx:beforeSend reset() me">
-                {% csrf_token %}
-                <input type="file" name="file" id="id_file" class="!bg-transparent text-gray-400"
-                       _="on change 
-                           if my files' length > 0 
-                               then find #submit_button remove @disabled 
-                               else find #submit_button add @disabled">
-                <button type="submit" id="submit_button" class="whitespace-nowrap !text-sm !py-3 !px-4 h-fit" disabled>Add File</button>
-            </form>
-            
+                <form action="" id="chat_file_form" class="flex items-center w-full" enctype="multipart/form-data" hx-post="/chat/fileupload/{{chatroom_name}}" hx-target="#chat_messages" hx-swap="beforeend" _="on htmx:beforeSend reset() me">
+                    {% csrf_token %}
+                    <input type="file" name="file" id="id_file" class="!bg-transparent text-gray-400">
+                    <button type="submit" id="add_file_button" class="whitespace-nowrap !text-sm !py-3 !px-4 h-fit" disabled>Add File</button>
+                </form>
             </div>
         </div>
     </div>
     {% if chat_group.members.exists %}
     <form action="{% url 'leave-chatroom' chat_group.group_name %}" method="post">
         {% csrf_token %}
-        <button type="submit" class="mt-2">Leave Chat</button>
+        <button type="submit" id="submit_button" class="mt-2">Leave Chat</button>
     </form>
     {% endif %}
 </wrapper>
-
-
-
 {% endblock content %}
 
 {% block javascript %}
 <script>
+
     function scrollToBottom(time=0){
         setTimeout(function (){
             let container = document.getElementById("chat_container");
@@ -100,8 +91,11 @@
     }
     scrollToBottom()
 
-    function resetForm() {
-        document.getElementById("chat_file_form").reset();
-    }
+    document.getElementById('id_file').addEventListener('change', function(event) {
+        if (this.files.length > 0) {
+            document.getElementById('add_file_button').removeAttribute('disabled');
+        }
+    });
+
 </script>
 {% endblock javascript %}
