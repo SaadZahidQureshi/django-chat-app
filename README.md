@@ -48,5 +48,5 @@ print(get_random_secret_key())
 exit()
 ```
 
-### Credit: @andyjud
+### Credit: @andyjud(https://github.com/andyjud)
 
